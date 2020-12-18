@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <title></title>
+  <style>
+  </style>
+</head>
+<body>
+  <div id="app">
+    <el-table
+      :data="tableData"
+      border
+      :span-method='arraySpanMethod'
+      style="width: 100%">
+      <el-table-column
+        type="index"
+        width="50">
+      </el-table-column>
+      <el-table-column
+        prop="date"
+        label="日期"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="name"
+        label="姓名"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="address"
+        label="地址">
+      </el-table-column>
+    </el-table>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script><!-- 引入样式 -->
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!-- 引入组件库 -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        tableData: [{
+          date: '2016-05-01',
+          name: '王小龙1',
+          address: '上海市普陀区金沙江路 2 弄'
+        }, {
+          date: '2016-05-02',
+          name: '王小虎3',
+          address: '上海市普陀区金沙江路 2 弄'
+        }, {
+          date: '2016-05-02',
+          name: '王小虎3',
+          address: '上海市普陀区金沙江路 3 弄'
+        }, {
+          date: '2016-05-02',
+          name: '王小虎4',
+          address: '上海市普陀区金沙江路 3 弄'
+        }],
+        mergeArr: []
+      },
+      methods: {
+        arraySpanMethod({ row, column, rowIndex, columnIndex }) {
+          if (this.mergeArr[column.property]) {
+            let first = this.mergeArr[column.property][rowIndex]
+            let second = this.mergeArr[column.property][rowIndex] >= 1 ? 1 : 0
+            return [first, second]
+          }
+        }
+      },
+      mounted () {
+        //////////////////////////////////////// 行合并 - 需保证每一行有序号，否则会有问题 /////////////////////////////////////
+
+
+        // 好乱啊
+        
+
+        // 定义空数组
+        this.mergeArr = {}
+        for (let key in this.tableData[0]) {
+          let arr = []
+          // 定义当前 下标 下的值
+          let value = ''
+          // 定义这是 与上一个下标中 的值不一样的 第一个
+          let subscript = 0
+          this.tableData.forEach((item, index) => {
+            if (index < this.tableData.length) {
+              // 从第一个开始赋值
+              if (index === 0) {
+                value = this.tableData[0][key]
+                // 目前不知道，后边是否有与第一个相同的，所以先赋值 1
+                arr.push(1)
+              } else {
+                // 判断 当前下标下的值，是否与上一个下标下的值相同
+                if (value === this.tableData[index][key]) {
+                  // 相同的话，当前单元格应该被合并，所以传入 0
+                  arr.push(0)
+                  // 同时，给第一个不与 上一个下标相同的 赋值后边有几位相同的
+                  arr[subscript] = arr.length - subscript
+                } else {
+                  // 不同的话
+                  value = this.tableData[index][key]
+                  arr[subscript] = arr.length - subscript
+                  subscript = index
+                  arr.push(1)
+                }
+              }
+            }
+          })
+          
+          this.mergeArr[key] = arr
+        }
+      }
+      
+    })
+  </script>
+</body>
+</html>
